@@ -5,7 +5,9 @@ For GCG syntax, see https://www.poslfit.com/scrabble/gcg/.
 import re
 from copy import deepcopy
 
+from CoordinatesParsing import parse_coordinates
 from ScrabbleBoard import ScrabbleBoard
+from ScrabbleGameMove import ScrabbleGameMove
 from Stack import Stack
 
 BOARD_SIZE = 15
@@ -37,23 +39,24 @@ WITHDRAWN_WORD_EVENT_LINE_PATTERN = r"\s+".join([
 
 class ScrabbleGame:
     def __init__(self, gcg_file_content: str):
-        self.board_evolution: Stack = Stack()  # containing ScrabbleBoard objects
-        self.board_evolution.push(ScrabbleBoard(BOARD_SIZE))
-
-        self.words_added_in_each_move: Stack = Stack()  # containing elements of type list[str]
+        self.moves: Stack = Stack()
+        self.moves.push(ScrabbleGameMove(board_after_move=ScrabbleBoard(BOARD_SIZE), words_added=[]))
 
         self.__init_from_gcg_file(gcg_file_content)
 
     def __str__(self) -> str:
-        return str(self.board_evolution.peek())
+        return str(self.moves.peek().board_after_move)
 
     def __init_from_gcg_file(self, gcg_file_content: str):
         lines = gcg_file_content.split("\n")
 
-        for line in lines:
-            line = line.removesuffix("\r")  # Carriage return is present in some gcg files
+        # Carriage return is present in some gcg files
+        lines = map(lambda line: line.removesuffix("\r"), lines)
 
+        for line in lines:
             regular_play_event_match = re.fullmatch(REGULAR_PLAY_EVENT_LINE_PATTERN, line)
+
+            # Determine whether line refers to a regular play event or a withdrawal
             if regular_play_event_match:
                 coordinates, word = regular_play_event_match.groups()
                 col, row, is_horizontal = parse_coordinates(coordinates)
@@ -66,8 +69,9 @@ class ScrabbleGame:
         word = word.upper()
         positions_of_new_tiles: set[tuple[int, int]] = set()  # Set of (col, row) positions at which new tiles are placed
 
-        current_board_copy: ScrabbleBoard = deepcopy(self.board_evolution.peek())
+        current_board_copy: ScrabbleBoard = deepcopy(self.moves.peek().board_after_move)
 
+        # Add new word to the board
         for letter in word:
             if not (letter == "." or current_board_copy.get_cell(col, row)):
                 current_board_copy.set_cell(col, row, letter)
@@ -78,41 +82,40 @@ class ScrabbleGame:
             else:
                 row += 1
 
-        self.board_evolution.push(current_board_copy)
-
+        # Record newly created words
         new_words = []
         for read_horizontally in (True, False):
             new_words += self.get_new_words_in_direction(positions_of_new_tiles, read_horizontally)
 
-        self.words_added_in_each_move.push(new_words)
+        self.moves.push(ScrabbleGameMove(current_board_copy, new_words))
 
     def __withdraw_previous_move(self):
-        self.board_evolution.pop()
-        self.words_added_in_each_move.pop()
+        self.moves.pop()
 
-    def get_new_words_in_direction(self, positions_of_new_tiles: set[tuple[int, int]], read_horizontally: bool) -> list[str]:
-        # When reading horizontally, this stores the unique row-coordinates across newly placed tiles.
-        # When reading vertically, this stores the unique column-coordinates across newly placed tiles.
-        coords_of_new_tiles: set[int] = set()
-        new_board = self.board_evolution.peek()
+    def get_new_words_in_direction(self, new_tile_positions: set[tuple[int, int]], read_horizontally: bool) -> list[str]:
+        # When reading horizontally, this stores the unique column-coordinates across newly placed tiles.
+        # When reading vertically, this stores the unique row-coordinates across newly placed tiles.
+        row_or_column_indices_with_new_tiles: set[int] = set()
 
-        for new_tile_position in positions_of_new_tiles:
-            coords_of_new_tiles.add(new_tile_position[1 if read_horizontally else 0])
+        for new_tile_position in new_tile_positions:
+            row_or_column_indices_with_new_tiles.add(new_tile_position[1 if read_horizontally else 0])
+
+        new_board: ScrabbleBoard = self.moves.peek().board_after_move
 
         result = []
 
-        for coord in coords_of_new_tiles:
+        for row_or_column_index in row_or_column_indices_with_new_tiles:
             curr_word = ""
             curr_word_contains_new_tiles = False
 
             for other_coord in range(BOARD_SIZE):
-                xy_coords = (other_coord, coord) if read_horizontally else (coord, other_coord)
+                coordinates = (row_or_column_index, other_coord) if read_horizontally else (other_coord, row_or_column_index)
 
-                cell_contents = new_board[xy_coords[1]][xy_coords[0]]
+                cell_contents = new_board.get_cell(*coordinates)
 
                 if cell_contents:  # Cell contains a tile
                     curr_word += cell_contents
-                    if xy_coords in positions_of_new_tiles:
+                    if coordinates in new_tile_positions:
                         curr_word_contains_new_tiles = True
 
                 else:  # Cell is empty
@@ -129,28 +132,5 @@ class ScrabbleGame:
         return result
 
     def all_words(self):
-        return sum(self.words_added_in_each_move.as_list(), start=[])
+        return sum([move.words_added for move in self.moves.as_list()], start=[])
 
-
-
-def parse_coordinates(coordinates: str) -> tuple[int, int, bool]:
-    """
-    :param coordinates: A string in GCG syntax
-    :return: A tuple containing an integer column-coordinate (0-14), an integer row-coordinate (0-14), and a boolean indicating if the word added is placed horizontally.
-    """
-    num_pattern = r"(?P<num>[1-9]|1[0-5])"
-    letter_pattern = r"(?P<letter>[A-O])"
-
-    match_with_num_first = re.fullmatch(num_pattern + letter_pattern, coordinates)
-    is_horizontal = match_with_num_first is not None
-
-    if is_horizontal:
-        group_dict = match_with_num_first.groupdict()
-    else:
-        match_with_letter_first = re.fullmatch(letter_pattern + num_pattern, coordinates)
-        group_dict = match_with_letter_first.groupdict()
-
-    row = int(group_dict['num']) - 1
-    col = ord(group_dict['letter']) - ord('A')
-
-    return col, row, is_horizontal
