@@ -8,7 +8,7 @@ from copy import deepcopy
 from CoordinatesParsing import parse_coordinates
 from ScrabbleBoard import ScrabbleBoard
 from ScrabbleGameMove import ScrabbleGameMove
-from Stack import Stack
+from ScrabbleGameMoveStack import ScrabbleGameMoveStack
 
 from GcgRegexPatterns import REGULAR_PLAY_EVENT_LINE_PATTERN, WITHDRAWN_WORD_EVENT_LINE_PATTERN
 
@@ -27,7 +27,7 @@ class ScrabbleGame:
         :param gcg_file_content: The contents of a GCG file.
         """
 
-        self.moves: Stack = Stack()
+        self.moves: ScrabbleGameMoveStack = ScrabbleGameMoveStack()
         self.moves.push(ScrabbleGameMove(board_after_move=ScrabbleBoard(BOARD_SIZE), words_added=[]))
 
         self.__init_from_gcg_file(gcg_file_content)
