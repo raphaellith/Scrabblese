@@ -72,7 +72,7 @@ class ScrabbleGame:
     def __withdraw_previous_move(self):
         self.moves.pop()
 
-    def get_new_words_in_direction(self, new_tile_positions: set[tuple[int, int]], read_horizontally: bool) -> list[str]:
+    def __get_new_words_in_direction(self, new_tile_positions: set[tuple[int, int]], read_horizontally: bool) -> list[str]:
         # When reading horizontally, this stores the unique column-coordinates across newly placed tiles.
         # When reading vertically, this stores the unique row-coordinates across newly placed tiles.
         row_or_column_indices_with_new_tiles: set[int] = set()
