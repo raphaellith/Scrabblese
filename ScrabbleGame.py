@@ -1,7 +1,7 @@
 """
 Represents a Scrabble game.
 
-For GCG syntax, see https://www.poslfit.com/scrabble/gcg/.
+A ScrabbleGame consists of a stack of ScrabbleGameMoves.
 """
 
 import re

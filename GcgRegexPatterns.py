@@ -1,3 +1,9 @@
+"""
+List of regular expressions used to parse GCG files.
+
+For a description of GCG syntax, see https://www.poslfit.com/scrabble/gcg/.
+"""
+
 PLAYER_NICKNAME_PATTERN = r">.+:"
 RACK_PATTERN = r"[A-Z\?]{,7}"
 COORDINATE_PATTERN = r"(?P<coord>[A-O0-9]{2,3})"
