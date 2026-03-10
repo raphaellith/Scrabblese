@@ -3,7 +3,7 @@ from itertools import count, islice
 
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse
-from ScrabbleGame import ScrabbleGame
+from Scrabble.ScrabbleGame import ScrabbleGame
 
 
 class GcgScraper:
