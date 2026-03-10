@@ -65,7 +65,7 @@ class ScrabbleGame:
         # Record newly created words
         new_words = []
         for read_horizontally in (True, False):
-            new_words += self.get_new_words_in_direction(positions_of_new_tiles, read_horizontally)
+            new_words += self.__get_new_words_in_direction(positions_of_new_tiles, read_horizontally)
 
         self.moves.push(ScrabbleGameMove(current_board_copy, new_words))
 
