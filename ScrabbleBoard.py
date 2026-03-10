@@ -1,4 +1,14 @@
+"""
+Provides the ScrabbleBoard class which represents a Scrabble board.
+"""
+
+
 class ScrabbleBoard:
+    """
+    Represents a Scrabble board.
+    As the state of the board may evolve over time throughout a game,
+    each ScrabbleGame may have multiple instances of ScrabbleBoard.
+    """
     def __init__(self, size):
         self.size = size
         self.__board = [["" for _ in range(self.size)] for __ in range(self.size)]
