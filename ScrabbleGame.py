@@ -1,7 +1,5 @@
 """
-Represents a Scrabble game.
-
-A ScrabbleGame consists of a stack of ScrabbleGameMoves.
+Provides the ScrabbleGame class which represents a Scrabble game.
 """
 
 import re
@@ -18,7 +16,17 @@ BOARD_SIZE = 15
 
 
 class ScrabbleGame:
+    """
+    A ScrabbleGame consists of a stack of ScrabbleGameMoves and can be initialised from the contents of a GCG file.
+    """
+
     def __init__(self, gcg_file_content: str):
+        """
+        Initialises a ScrabbleGame from a GCG file.
+
+        :param gcg_file_content: The contents of a GCG file.
+        """
+
         self.moves: Stack = Stack()
         self.moves.push(ScrabbleGameMove(board_after_move=ScrabbleBoard(BOARD_SIZE), words_added=[]))
 
