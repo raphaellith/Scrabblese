@@ -1,4 +1,6 @@
 """
+Represents a Scrabble game.
+
 For GCG syntax, see https://www.poslfit.com/scrabble/gcg/.
 """
 
@@ -10,31 +12,9 @@ from ScrabbleBoard import ScrabbleBoard
 from ScrabbleGameMove import ScrabbleGameMove
 from Stack import Stack
 
+from GcgRegexPatterns import REGULAR_PLAY_EVENT_LINE_PATTERN, WITHDRAWN_WORD_EVENT_LINE_PATTERN
+
 BOARD_SIZE = 15
-
-PLAYER_NICKNAME_PATTERN = r">.+:"
-RACK_PATTERN = r"[A-Z\?]{,7}"
-COORDINATE_PATTERN = r"(?P<coord>[A-O0-9]{2,3})"
-WORD_FORMED_PATTERN = r"(?P<word>[A-Za-z\.]{2,})"
-SIGNED_SCORE_PATTERN = r"[\+-][0-9]+"
-CUMULATIVE_SCORE_PATTERN = r"[0-9]+"
-
-REGULAR_PLAY_EVENT_LINE_PATTERN = r"\s+".join([
-    PLAYER_NICKNAME_PATTERN,
-    RACK_PATTERN,
-    COORDINATE_PATTERN,
-    WORD_FORMED_PATTERN,
-    SIGNED_SCORE_PATTERN,
-    CUMULATIVE_SCORE_PATTERN
-])
-
-WITHDRAWN_WORD_EVENT_LINE_PATTERN = r"\s+".join([
-    PLAYER_NICKNAME_PATTERN,
-    RACK_PATTERN,
-    "--",
-    SIGNED_SCORE_PATTERN,
-    CUMULATIVE_SCORE_PATTERN
-])
 
 
 class ScrabbleGame:
@@ -56,7 +36,7 @@ class ScrabbleGame:
         for line in lines:
             regular_play_event_match = re.fullmatch(REGULAR_PLAY_EVENT_LINE_PATTERN, line)
 
-            # Determine whether line refers to a regular play event or a withdrawal
+            # Determine whether the line refers to a regular play event or a withdrawal
             if regular_play_event_match:
                 coordinates, word = regular_play_event_match.groups()
                 col, row, is_horizontal = parse_coordinates(coordinates)
