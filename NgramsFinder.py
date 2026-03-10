@@ -1,5 +1,5 @@
 """
-Provides a helper class for retrieving collapsed relative match counts from the ngrams.dev API.
+Provides a class for retrieving collapsed relative match counts from the ngrams.dev API.
 
 See https://ngrams.dev/.
 """
