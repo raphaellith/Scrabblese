@@ -95,6 +95,6 @@ class GcgScraper:
 
         with open(file_path, "w") as output_file:
             for gcg_content in gcg_file_generator:
-                scrabble_board = ScrabbleGame(gcg_content)
-                for word in scrabble_board.all_words():
+                scrabble_game = ScrabbleGame(gcg_content)
+                for word in scrabble_game.all_words():
                     output_file.write(word + '\n')
