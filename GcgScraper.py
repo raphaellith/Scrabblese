@@ -24,7 +24,7 @@ class GcgScraper:
 
     def __init__(self):
         self.request_session = requests.Session()
-        self.request_session.headers.update({'User-Agent': '"CustomUserAgent/1.0"'})
+        self.request_session.headers.update({'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'})
 
     def get_html(self, url: str) -> Optional[str]:
         """
