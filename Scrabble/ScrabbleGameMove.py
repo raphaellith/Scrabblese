@@ -3,7 +3,7 @@ Represents a move in a Scrabble game.
 """
 
 
-from ScrabbleBoard import ScrabbleBoard
+from Scrabble.ScrabbleBoard import ScrabbleBoard
 
 
 class ScrabbleGameMove:
