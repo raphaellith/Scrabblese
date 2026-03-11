@@ -14,7 +14,7 @@ class ScrabbleBoard:
         self.__board = [["" for _ in range(self.size)] for __ in range(self.size)]
 
     def __str__(self) -> str:
-        return "\n".join(["".join([s if s else "_" for s in row]) for row in self.board])
+        return "\n".join(["".join([s if s else "_" for s in row]) for row in self.__board])
 
     def add_word(self, str):
         pass
