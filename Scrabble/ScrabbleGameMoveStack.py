@@ -1,4 +1,4 @@
-from ScrabbleGameMove import ScrabbleGameMove
+from Scrabble.ScrabbleGameMove import ScrabbleGameMove
 
 
 class ScrabbleGameMoveStack:
