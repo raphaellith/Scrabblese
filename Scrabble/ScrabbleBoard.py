@@ -2,6 +2,8 @@
 Provides the ScrabbleBoard class which represents a Scrabble board.
 """
 
+from copy import deepcopy
+
 
 class ScrabbleBoard:
     """
@@ -24,3 +26,6 @@ class ScrabbleBoard:
 
     def set_cell(self, col, row, value):
         self.__board[row][col] = value
+
+    def deep_copy(self):
+        return deepcopy(self)

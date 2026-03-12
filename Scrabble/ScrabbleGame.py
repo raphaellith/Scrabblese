@@ -3,7 +3,6 @@ Provides the ScrabbleGame class which represents a Scrabble game.
 """
 
 import re
-from copy import deepcopy
 
 from Scrabble.CoordinatesParsing import parse_gcg_coordinates
 from Scrabble.ScrabbleBoard import ScrabbleBoard
@@ -78,7 +77,7 @@ class ScrabbleGame:
         new_tile_positions: set[tuple[int, int]] = set()
 
         # Create a copy of the current board and update it with this move
-        board_after_move: ScrabbleBoard = deepcopy(self.moves.peek().board_after_move)
+        board_after_move: ScrabbleBoard = self.moves.peek().board_after_move.deep_copy()
 
         # Add new word to the board
         for letter in word:
