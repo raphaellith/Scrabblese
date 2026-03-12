@@ -20,7 +20,7 @@ def parse_gcg_coordinates(coordinates: str) -> tuple[int, int, bool]:
     letter_pattern = r"(?P<letter>[A-O])"
 
     match_with_num_first = re.fullmatch(num_pattern + letter_pattern, coordinates)
-    is_horizontal = match_with_num_first is not None
+    is_horizontal: bool = match_with_num_first is not None
 
     if is_horizontal:
         group_dict = match_with_num_first.groupdict()
@@ -28,6 +28,7 @@ def parse_gcg_coordinates(coordinates: str) -> tuple[int, int, bool]:
         match_with_letter_first = re.fullmatch(letter_pattern + num_pattern, coordinates)
         group_dict = match_with_letter_first.groupdict()
 
+    # Row and column positions are zero-indexed
     row = int(group_dict['num']) - 1
     col = ord(group_dict['letter']) - ord('A')
 
