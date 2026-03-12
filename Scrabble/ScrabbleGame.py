@@ -69,26 +69,27 @@ class ScrabbleGame:
                 col += 1
             else:
                 row += 1
-
+        print(col, row, is_horizontal, word)
         # Record newly created words
         new_words = []
         for read_horizontally in (True, False):
-            new_words += self.__get_new_words_in_direction(positions_of_new_tiles, read_horizontally)
+            new_words += self.__get_new_words_in_direction(current_board_copy, positions_of_new_tiles, read_horizontally)
 
         self.moves.push(ScrabbleGameMove(current_board_copy, new_words))
 
     def __withdraw_previous_move(self):
         self.moves.pop()
 
-    def __get_new_words_in_direction(self, new_tile_positions: set[tuple[int, int]], read_horizontally: bool) -> list[str]:
+    def __get_new_words_in_direction(self, new_board: ScrabbleBoard, new_tile_positions: set[tuple[int, int]], read_horizontally: bool) -> list[str]:
         # When reading horizontally, this stores the unique column-coordinates across newly placed tiles.
         # When reading vertically, this stores the unique row-coordinates across newly placed tiles.
         row_or_column_indices_with_new_tiles: set[int] = set()
 
         for new_tile_position in new_tile_positions:
-            row_or_column_indices_with_new_tiles.add(new_tile_position[1 if read_horizontally else 0])
+            row_or_column_indices_with_new_tiles.add(new_tile_position[0 if read_horizontally else 1])
 
-        new_board: ScrabbleBoard = self.moves.peek().board_after_move
+        print(new_board, row_or_column_indices_with_new_tiles)
+        print()
 
         result = []
 
