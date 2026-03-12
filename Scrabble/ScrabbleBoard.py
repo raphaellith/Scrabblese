@@ -15,14 +15,14 @@ class ScrabbleBoard:
         """
         Initialises a ScrabbleBoard of a given size.
 
-        The attribute self.__board represents the board as a 2D list of strings. These strings are either:
+        The attribute self._board represents the board as a 2D list of strings. These strings are either:
         - empty (""), indicating an empty cell; or
         - a single letter, indicating a cell containing a tile.
 
         :param size: The width and height of the board.
         """
         self.size: int = size
-        self.__board: list[list[str]] = [["" for _ in range(self.size)] for __ in range(self.size)]
+        self._board: list[list[str]] = [["" for _ in range(self.size)] for __ in range(self.size)]
 
     def __str__(self) -> str:
         """
@@ -30,7 +30,7 @@ class ScrabbleBoard:
         Empty cells are represented by an underscore.
         :return: A string representation of the board.
         """
-        return "\n".join(["".join([s if s else "_" for s in row]) for row in self.__board])
+        return "\n".join(["".join([s if s else "_" for s in row]) for row in self._board])
 
     def get_cell(self, col, row) -> str:
         """
@@ -40,7 +40,7 @@ class ScrabbleBoard:
         :return: Either an empty string (""), indicating an empty cell;
         or a single letter, indicating a cell containing a tile.
         """
-        return self.__board[row][col]
+        return self._board[row][col]
 
     def set_cell(self, col, row, value):
         """
@@ -50,7 +50,7 @@ class ScrabbleBoard:
         :param value: The value to set.
         :return: None.
         """
-        self.__board[row][col] = value
+        self._board[row][col] = value
 
     def deep_copy(self) -> 'ScrabbleBoard':
         """
