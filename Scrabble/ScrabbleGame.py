@@ -33,9 +33,18 @@ class ScrabbleGame:
         self.__init_from_gcg_file(gcg_file_content)
 
     def __str__(self) -> str:
+        """
+        :return: The string representation of the most recent board.
+        """
         return str(self.moves.peek().board_after_move)
 
     def __init_from_gcg_file(self, gcg_file_content: str):
+        """
+        Initialises self.moves by simulating a game based on the contents of a GCG file.
+        :param gcg_file_content: The contents of a GCG file.
+        :return: None
+        """
+
         lines = gcg_file_content.split("\n")
 
         # Carriage return is present in some gcg files
@@ -54,8 +63,19 @@ class ScrabbleGame:
                 self.__withdraw_previous_move()
 
     def __add_move(self, col: int, row: int, is_horizontal: bool, word: str):
+        """
+        Simulates a move by adding a word to the board and updating the stack of moves.
+        :param col: The column position at which the word is placed.
+        :param row: The row position at which the word is placed.
+        :param is_horizontal: True if the word is placed horizontally, False if the word is placed vertically.
+        :param word: The word to be added to the board.
+        :return: None
+        """
+
         word = word.upper()
-        new_tile_positions: set[tuple[int, int]] = set()  # Set of (col, row) positions at which new tiles are placed
+
+        # Set of (col, row) positions at which new tiles are placed
+        new_tile_positions: set[tuple[int, int]] = set()
 
         # Create a copy of the current board and update it with this move
         board_after_move: ScrabbleBoard = deepcopy(self.moves.peek().board_after_move)
@@ -80,9 +100,22 @@ class ScrabbleGame:
         self.moves.push(ScrabbleGameMove(board_after_move, new_words))
 
     def __withdraw_previous_move(self):
+        """
+        Withdraws the most recent move from the stack of moves.
+        :return: None
+        """
         self.moves.pop()
 
     def __get_new_words_in_direction(self, board_after_move: ScrabbleBoard, new_tile_positions: set[tuple[int, int]], read_horizontally: bool) -> list[str]:
+        """
+        Given a reading direction (horizontal or vertical), returns a list of words newly created by a move.
+        :param board_after_move: The board after the move.
+        :param new_tile_positions: The set of (col, row) positions at which new tiles are placed during the move.
+        :param read_horizontally: To retrieve new words horizontally, set to True.
+        To retrieve new words vertically, set to False.
+        :return: The list of words newly created by a move in the specified direction.
+        """
+
         # When reading horizontally, this stores the unique column-coordinates across newly placed tiles.
         # When reading vertically, this stores the unique row-coordinates across newly placed tiles.
         row_or_column_indices_with_new_tiles: set[int] = set()
@@ -120,5 +153,9 @@ class ScrabbleGame:
         return result
 
     def all_words(self):
+        """
+        Returns a list of all words added during the game.
+        :return: A list of all words added during the game.
+        """
         return sum([move.words_added for move in self.moves.as_list()], start=[])
 
