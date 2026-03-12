@@ -12,13 +12,13 @@ from Scrabble.ScrabbleGameMoveStack import ScrabbleGameMoveStack
 
 from Scrabble.GcgRegexPatterns import REGULAR_PLAY_EVENT_LINE_PATTERN, WITHDRAWN_WORD_EVENT_LINE_PATTERN
 
-BOARD_SIZE = 15
-
 
 class ScrabbleGame:
     """
     A ScrabbleGame consists of a stack of ScrabbleGameMoves and can be initialised from the contents of a GCG file.
     """
+
+    BOARD_SIZE = 15
 
     def __init__(self, gcg_file_content: str):
         """
@@ -28,7 +28,7 @@ class ScrabbleGame:
         """
 
         self.moves: ScrabbleGameMoveStack = ScrabbleGameMoveStack()
-        self.moves.push(ScrabbleGameMove(board_after_move=ScrabbleBoard(BOARD_SIZE), words_added=[]))
+        self.moves.push(ScrabbleGameMove(board_after_move=ScrabbleBoard(self.BOARD_SIZE), words_added=[]))
 
         self.__init_from_gcg_file(gcg_file_content)
 
@@ -129,7 +129,7 @@ class ScrabbleGame:
             curr_word = ""
             curr_word_contains_new_tiles = False
 
-            for other_coord in range(BOARD_SIZE):
+            for other_coord in range(self.BOARD_SIZE):
                 coordinates = (row_or_column_index, other_coord) if read_horizontally else (other_coord, row_or_column_index)
 
                 cell_contents = board_after_move.get_cell(*coordinates)
