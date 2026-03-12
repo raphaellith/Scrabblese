@@ -42,11 +42,11 @@ class ScrabbleGame:
         lines = map(lambda line: line.removesuffix("\r"), lines)
 
         for line in lines:
-            regular_play_event_match = re.fullmatch(REGULAR_PLAY_EVENT_LINE_PATTERN, line)
+            regular_play_event_line_pattern_match = re.fullmatch(REGULAR_PLAY_EVENT_LINE_PATTERN, line)
 
             # Determine whether the line refers to a regular play event or a withdrawal
-            if regular_play_event_match:
-                coordinates, word = regular_play_event_match.groups()
+            if regular_play_event_line_pattern_match:
+                coordinates, word = regular_play_event_line_pattern_match.groups()
                 col, row, is_horizontal = parse_coordinates(coordinates)
                 self.__add_move(col, row, is_horizontal, word)
 
@@ -57,6 +57,7 @@ class ScrabbleGame:
         word = word.upper()
         positions_of_new_tiles: set[tuple[int, int]] = set()  # Set of (col, row) positions at which new tiles are placed
 
+        # Create a copy of the current board and update it with this move
         current_board_copy: ScrabbleBoard = deepcopy(self.moves.peek().board_after_move)
 
         # Add new word to the board
