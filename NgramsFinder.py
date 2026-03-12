@@ -2,8 +2,6 @@
 Provides a class for retrieving collapsed relative match counts from the ngrams.dev API.
 
 See https://ngrams.dev/.
-
-TODO: Research alternatives for https://ngrams.dev/ as it will be deprecated in June 2026.
 """
 
 import requests
