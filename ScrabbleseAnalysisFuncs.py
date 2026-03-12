@@ -75,7 +75,8 @@ def read_scrabble_words_from_text_file_and_compute_english_and_scrabble_probabil
             ])
 
 
-def read_csv_file_and_display_plot(csv_file_path: str):
+def read_csv_file_and_display_plot(csv_file_path: str, x_axis_label_for_ngrams_probabilities: str = "",
+                                   y_axis_label_for_scrabble_probabilities: str = ""):
     """
     Reads the English and Scrabble probabilities of words listed in a CSV file
     and displays a plot of the two probabilities (via Matplotlib) of each word.
@@ -84,6 +85,8 @@ def read_csv_file_and_display_plot(csv_file_path: str):
     read_scrabble_words_from_text_file_and_compute_english_and_scrabble_probabilities_to_be_stored_in_csv_file.
 
     :param csv_file_path: The path to the CSV file.
+    :param x_axis_label_for_ngrams_probabilities: The label for the x-axis of the plot.
+    :param y_axis_label_for_scrabble_probabilities: The label for the y-axis of the plot.
     :return: None
     """
     words: list[str] = []
@@ -106,5 +109,11 @@ def read_csv_file_and_display_plot(csv_file_path: str):
 
     for i, word in enumerate(words):
         plt.annotate(word, (ngrams_probabilities[i], scrabble_probabilities[i]))
+
+    if x_axis_label_for_ngrams_probabilities:
+        plt.xlabel(x_axis_label_for_ngrams_probabilities)
+
+    if y_axis_label_for_scrabble_probabilities:
+        plt.ylabel(y_axis_label_for_scrabble_probabilities)
 
     plt.show()
