@@ -17,7 +17,7 @@ class ScrabbleGame:
     A ScrabbleGame consists of a stack of ScrabbleGameMoves and can be initialised from the contents of a GCG file.
     """
 
-    BOARD_SIZE = 15
+    BOARD_SIZE: int = 15
 
     def __init__(self, gcg_file_content: str):
         """
@@ -122,14 +122,14 @@ class ScrabbleGame:
         for new_tile_position in new_tile_positions:
             row_or_column_indices_with_new_tiles.add(new_tile_position[0 if read_horizontally else 1])
 
-        result = []
+        result: list[str] = []
 
         for row_or_column_index in row_or_column_indices_with_new_tiles:
             curr_word = ""
             curr_word_contains_new_tiles = False
 
             for other_coord in range(self.BOARD_SIZE):
-                coordinates = (row_or_column_index, other_coord) if read_horizontally else (other_coord, row_or_column_index)
+                coordinates: tuple[int, int] = (row_or_column_index, other_coord) if read_horizontally else (other_coord, row_or_column_index)
 
                 cell_contents = board_after_move.get_cell(*coordinates)
 
@@ -151,7 +151,7 @@ class ScrabbleGame:
 
         return result
 
-    def all_words(self):
+    def all_words(self) -> list[str]:
         """
         Returns a list of all words added during the game.
         :return: A list of all words added during the game.
