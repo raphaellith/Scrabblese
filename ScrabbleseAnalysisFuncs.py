@@ -16,16 +16,17 @@ CSV_DELIMITER: str = " "
 CSV_QUOTECHAR: str = "|"
 
 
-def scrape_and_output_words_from_scrabble_games_to_text_file(text_file_path: str, max_files_to_read: int = -1):
+def scrape_and_output_words_from_scrabble_games_to_text_file(text_file_path: str, max_files_to_read: int = -1, user_agent: str = None):
     """
     Scrapes GCG files from Cross-Tables.com and outputs the words in each game to a text file.
     The words are separated by newlines in the text file.
     :param text_file_path: The path to the text file where the words will be written.
     :param max_files_to_read: The maximum number of GCG files to read. If set to -1, all files will be read.
+    :param user_agent: The user agent to use when scraping. If None, a default user agent will be used.
     :return: None
     """
 
-    scraper = GcgScraper()
+    scraper = GcgScraper(user_agent=user_agent)
     scraper.output_words_to_file(text_file_path, max_files_to_read)
 
 
