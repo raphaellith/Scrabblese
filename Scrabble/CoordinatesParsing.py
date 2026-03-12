@@ -5,7 +5,7 @@ Provides a helper function for parsing coordinates written in GCG syntax.
 import re
 
 
-def parse_coordinates(coordinates: str) -> tuple[int, int, bool]:
+def parse_gcg_coordinates(coordinates: str) -> tuple[int, int, bool]:
     """
     Helper function for parsing coordinates written in GCG syntax.
 

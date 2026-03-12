@@ -5,7 +5,7 @@ Provides the ScrabbleGame class which represents a Scrabble game.
 import re
 from copy import deepcopy
 
-from Scrabble.CoordinatesParsing import parse_coordinates
+from Scrabble.CoordinatesParsing import parse_gcg_coordinates
 from Scrabble.ScrabbleBoard import ScrabbleBoard
 from Scrabble.ScrabbleGameMove import ScrabbleGameMove
 from Scrabble.ScrabbleGameMoveStack import ScrabbleGameMoveStack
@@ -39,15 +39,15 @@ class ScrabbleGame:
         lines = gcg_file_content.split("\n")
 
         # Carriage return is present in some gcg files
-        lines = map(lambda line: line.removesuffix("\r"), lines)
+        lines = map(lambda l: l.removesuffix("\r"), lines)
 
         for line in lines:
             regular_play_event_line_pattern_match = re.fullmatch(REGULAR_PLAY_EVENT_LINE_PATTERN, line)
 
             # Determine whether the line refers to a regular play event or a withdrawal
             if regular_play_event_line_pattern_match:
-                coordinates, word = regular_play_event_line_pattern_match.groups()
-                col, row, is_horizontal = parse_coordinates(coordinates)
+                gcg_coordinates, word = regular_play_event_line_pattern_match.groups()
+                col, row, is_horizontal = parse_gcg_coordinates(gcg_coordinates)
                 self.__add_move(col, row, is_horizontal, word)
 
             elif re.fullmatch(WITHDRAWN_WORD_EVENT_LINE_PATTERN, line):
@@ -55,16 +55,16 @@ class ScrabbleGame:
 
     def __add_move(self, col: int, row: int, is_horizontal: bool, word: str):
         word = word.upper()
-        positions_of_new_tiles: set[tuple[int, int]] = set()  # Set of (col, row) positions at which new tiles are placed
+        new_tile_positions: set[tuple[int, int]] = set()  # Set of (col, row) positions at which new tiles are placed
 
         # Create a copy of the current board and update it with this move
-        current_board_copy: ScrabbleBoard = deepcopy(self.moves.peek().board_after_move)
+        board_after_move: ScrabbleBoard = deepcopy(self.moves.peek().board_after_move)
 
         # Add new word to the board
         for letter in word:
-            if not (letter == "." or current_board_copy.get_cell(col, row)):
-                current_board_copy.set_cell(col, row, letter)
-                positions_of_new_tiles.add((col, row))
+            if not (letter == "." or board_after_move.get_cell(col, row)):
+                board_after_move.set_cell(col, row, letter)
+                new_tile_positions.add((col, row))
 
             if is_horizontal:
                 col += 1
@@ -74,14 +74,15 @@ class ScrabbleGame:
         # Record newly created words
         new_words = []
         for read_horizontally in (True, False):
-            new_words += self.__get_new_words_in_direction(current_board_copy, positions_of_new_tiles, read_horizontally)
+            new_words += self.__get_new_words_in_direction(board_after_move, new_tile_positions, read_horizontally)
 
-        self.moves.push(ScrabbleGameMove(current_board_copy, new_words))
+        # Update stack of moves
+        self.moves.push(ScrabbleGameMove(board_after_move, new_words))
 
     def __withdraw_previous_move(self):
         self.moves.pop()
 
-    def __get_new_words_in_direction(self, new_board: ScrabbleBoard, new_tile_positions: set[tuple[int, int]], read_horizontally: bool) -> list[str]:
+    def __get_new_words_in_direction(self, board_after_move: ScrabbleBoard, new_tile_positions: set[tuple[int, int]], read_horizontally: bool) -> list[str]:
         # When reading horizontally, this stores the unique column-coordinates across newly placed tiles.
         # When reading vertically, this stores the unique row-coordinates across newly placed tiles.
         row_or_column_indices_with_new_tiles: set[int] = set()
@@ -98,7 +99,7 @@ class ScrabbleGame:
             for other_coord in range(BOARD_SIZE):
                 coordinates = (row_or_column_index, other_coord) if read_horizontally else (other_coord, row_or_column_index)
 
-                cell_contents = new_board.get_cell(*coordinates)
+                cell_contents = board_after_move.get_cell(*coordinates)
 
                 if cell_contents:  # Cell contains a tile
                     curr_word += cell_contents
@@ -112,7 +113,7 @@ class ScrabbleGame:
                     curr_word = ""
                     curr_word_contains_new_tiles = False
 
-            # For words at the end of the row
+            # For words at the end of the row/column
             if curr_word_contains_new_tiles and len(curr_word) > 1:
                 result.append(curr_word)
 
