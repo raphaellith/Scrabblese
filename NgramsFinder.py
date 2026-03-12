@@ -2,6 +2,8 @@
 Provides a class for retrieving collapsed relative match counts from the ngrams.dev API.
 
 See https://ngrams.dev/.
+
+TODO: Research alternatives for https://ngrams.dev/ as it will be deprecated in June 2026.
 """
 
 import requests
@@ -28,7 +30,3 @@ class NgramsFinder:
             return 0
 
         return ngram_results[0]["relTotalMatchCount"]
-
-
-if __name__ == '__main__':
-    print(NgramsFinder().get_collapsed_relative_match_count("QI"))
