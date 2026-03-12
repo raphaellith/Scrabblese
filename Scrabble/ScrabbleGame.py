@@ -70,7 +70,7 @@ class ScrabbleGame:
                 col += 1
             else:
                 row += 1
-        print(col, row, is_horizontal, word)
+
         # Record newly created words
         new_words = []
         for read_horizontally in (True, False):
@@ -88,9 +88,6 @@ class ScrabbleGame:
 
         for new_tile_position in new_tile_positions:
             row_or_column_indices_with_new_tiles.add(new_tile_position[0 if read_horizontally else 1])
-
-        print(new_board, row_or_column_indices_with_new_tiles)
-        print()
 
         result = []
 
