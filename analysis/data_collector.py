@@ -7,13 +7,13 @@ from math import inf
 
 from peewee import IntegrityError
 
-from GcgScraper import GcgScraper
+from gcg_scraper import GcgScraper
 from NgramsFinder import NgramsFinder
-from Scrabble.ScrabbleGame import ScrabbleGame
-from Scrabble.model.BaseModel import db
-from Scrabble.model.ScrabbleGameEntity import ScrabbleGameEntity
-from Scrabble.model.ScrabbleGameWordEntity import ScrabbleGameWordEntity
-from Scrabble.model.ScrabbleWordEntity import ScrabbleWordEntity
+from parsing.scrabble_game import ScrabbleGame
+from models.base_model import db
+from models.scrabble_game_entity import ScrabbleGameEntity
+from models.scrabble_game_word_entity import ScrabbleGameWordEntity
+from models.scrabble_word_entity import ScrabbleWordEntity
 
 
 def initialise_database():

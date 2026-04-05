@@ -1,8 +1,8 @@
 from peewee import ForeignKeyField, CompositeKey, IntegerField
 
-from Scrabble.model.BaseModel import BaseModel
-from Scrabble.model.ScrabbleGameEntity import ScrabbleGameEntity
-from Scrabble.model.ScrabbleWordEntity import ScrabbleWordEntity
+from models.base_model import BaseModel
+from models.scrabble_game_entity import ScrabbleGameEntity
+from models.scrabble_word_entity import ScrabbleWordEntity
 
 
 class ScrabbleGameWordEntity(BaseModel):

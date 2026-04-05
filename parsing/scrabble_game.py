@@ -4,12 +4,12 @@ Provides the ScrabbleGame class which represents a Scrabble game.
 
 import re
 
-from Scrabble.CoordinatesParsing import parse_gcg_coordinates
-from Scrabble.ScrabbleBoard import ScrabbleBoard
-from Scrabble.ScrabbleGameMove import ScrabbleGameMove
-from Scrabble.ScrabbleGameMoveStack import ScrabbleGameMoveStack
+from parsing.coordinates_parsing import parse_gcg_coordinates
+from parsing.scrabble_board import ScrabbleBoard
+from parsing.scrabble_game_move import ScrabbleGameMove
+from parsing.scrabble_game_move_stack import ScrabbleGameMoveStack
 
-from Scrabble.GcgRegexPatterns import REGULAR_PLAY_EVENT_LINE_PATTERN, WITHDRAWN_WORD_EVENT_LINE_PATTERN
+from parsing.gcg_regex_patterns import REGULAR_PLAY_EVENT_LINE_PATTERN, WITHDRAWN_WORD_EVENT_LINE_PATTERN
 
 
 class ScrabbleGame:

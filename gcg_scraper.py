@@ -10,7 +10,7 @@ from itertools import count, islice
 from bs4 import BeautifulSoup, ResultSet, Tag
 from urllib.parse import urlparse
 
-from Scrabble.ScrabbleGame import ScrabbleGame
+from parsing.scrabble_game import ScrabbleGame
 
 
 class GcgScraper:

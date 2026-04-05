@@ -1,6 +1,6 @@
 from peewee import IntegerField, BooleanField, TextField
 
-from Scrabble.model.BaseModel import BaseModel
+from models.base_model import BaseModel
 
 
 class ScrabbleGameEntity(BaseModel):

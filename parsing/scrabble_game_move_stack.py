@@ -2,7 +2,7 @@
 Provides a class for representing a stack of ScrabbleGameMoves.
 """
 
-from Scrabble.ScrabbleGameMove import ScrabbleGameMove
+from parsing.scrabble_game_move import ScrabbleGameMove
 
 
 class ScrabbleGameMoveStack:

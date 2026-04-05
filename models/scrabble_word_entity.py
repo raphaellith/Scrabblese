@@ -1,6 +1,6 @@
 from peewee import TextField, DoubleField
 
-from Scrabble.model.BaseModel import BaseModel
+from models.base_model import BaseModel
 
 
 class ScrabbleWordEntity(BaseModel):
