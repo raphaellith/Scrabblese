@@ -77,7 +77,7 @@ class GcgScraper:
         """
         return f"{self.HOST_URL}/annotated/selfgcg/{game_id // self.GAMES_PER_PAGE}/anno{game_id}.gcg"
 
-    def get_game_ids_as_generator(self) -> Generator[int, Any, None]:
+    def get_listed_game_id_generator(self) -> Generator[int, Any, None]:
         """
         Returns a generator that yields Cross-Tables game IDs discovered on list pages.
         :return: A generator that yields Cross-Tables game IDs.
@@ -94,6 +94,28 @@ class GcgScraper:
             for a_tag_with_game_url in a_tags_with_game_urls:
                 game_url = urlparse(a_tag_with_game_url.get("href"))  # e.g. "annotated.php?u=56130"
                 yield int(game_url.query.removeprefix("u="))
+
+    def get_unlisted_game_id_generator(self) -> Generator[int, Any, None]:
+        """
+        Returns a generator that yields Cross-Tables game IDs that are not listed on list pages.
+        This gives the set of game IDs complementary to those of get_listed_game_ids_as_generator.
+        :return: A generator that yields unlisted Cross-Tables game IDs.
+        """
+        listed_game_ids_generator: Generator[int, Any, None] = self.get_listed_game_id_generator()
+
+        try:
+            last_listed_game_id = next(listed_game_ids_generator)
+        except StopIteration:
+            return
+
+        for current_listed_game_id in listed_game_ids_generator:
+            for id in range(last_listed_game_id - 1, current_listed_game_id, -1):
+                yield id
+            last_listed_game_id = current_listed_game_id
+
+        for id in range(last_listed_game_id - 1, -1, -1):
+            yield id
+
 
     # def get_gcg_records_as_generator(self) -> Generator[dict[str, Any], Any, None]:
     #     """

@@ -81,15 +81,17 @@ class ScrabbleseAnalyser:
 
         return scrabble_word_entity
 
-    def scrape_and_cache_scrabble_games(self, max_games_to_insert: int = inf) -> int:
+    def scrape_and_cache_scrabble_games(self, scrape_listed_games: bool = True, max_games_to_insert: int = inf) -> int:
         """
-        Scrapes list-page game IDs and caches only games that are not already in SQLite.
+        Scrapes game IDs and caches only games that are not already in SQLite.
+        Either scrapes Scrabble games that are listed on a list page, or those that are not.
+        :param scrape_listed_games: Whether to scrape listed or unlisted games.
         :param max_games_to_insert: Maximum number of games to be added to the database.
         :return: Number of newly inserted games.
         """
         initialise_database()
 
-        game_id_generator = self.gcg_scraper.get_game_ids_as_generator()
+        game_id_generator = self.gcg_scraper.get_listed_game_id_generator() if scrape_listed_games else self.gcg_scraper.get_unlisted_game_id_generator()
 
         inserted_games = 0
         for game_id in game_id_generator:
@@ -103,7 +105,7 @@ class ScrabbleseAnalyser:
             gcg_contents = self.gcg_scraper.get_gcg_file_contents_by_game_id(game_id)
             scrabble_game_entity = ScrabbleGameEntity.create(
                 cross_tables_game_id=game_id,
-                is_on_list_page=True,
+                is_on_list_page=scrape_listed_games,
                 gcg_file_contents=gcg_contents,
             )
 
