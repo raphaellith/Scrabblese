@@ -10,19 +10,10 @@ from peewee import IntegrityError
 from gcg_scraper import GcgScraper
 from NgramsFinder import NgramsFinder
 from parsing.scrabble_game import ScrabbleGame
-from models.base_model import db
+from models.base_model import initialise_database
 from models.scrabble_game_entity import ScrabbleGameEntity
 from models.scrabble_game_word_entity import ScrabbleGameWordEntity
 from models.scrabble_word_entity import ScrabbleWordEntity
-
-
-def initialise_database():
-    """
-    Ensures all Scrabble cache tables exist.
-    :return: None
-    """
-    db.connect(reuse_if_open=True)
-    db.create_tables([ScrabbleGameEntity, ScrabbleWordEntity, ScrabbleGameWordEntity], safe=True)
 
 
 class ScrabbleseDataCollector:
