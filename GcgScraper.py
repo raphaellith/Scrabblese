@@ -77,13 +77,11 @@ class GcgScraper:
         """
         return f"{self.HOST_URL}/annotated/selfgcg/{game_id // self.GAMES_PER_PAGE}/anno{game_id}.gcg"
 
-    def get_gcg_files_as_generator(self) -> Generator[Optional[str], Any, None]:
+    def get_game_ids_as_generator(self) -> Generator[int, Any, None]:
         """
-        Returns a generator that yields the contents of GCG files from Cross-Tables.com.
-        :return: A generator that yields the contents of GCG files from Cross-Tables.com.
+        Returns a generator that yields Cross-Tables game IDs discovered on list pages.
+        :return: A generator that yields Cross-Tables game IDs.
         """
-        num_of_files_read_so_far: int = 0
-
         for offset in count(start=1, step=self.GAMES_PER_PAGE):
             game_list_url: str = self.get_game_list_page_url_with_offset(offset)
             game_list_soup: BeautifulSoup = self.get_soup(game_list_url)
@@ -95,12 +93,37 @@ class GcgScraper:
 
             for a_tag_with_game_url in a_tags_with_game_urls:
                 game_url = urlparse(a_tag_with_game_url.get("href"))  # e.g. "annotated.php?u=56130"
-                game_id = int(game_url.query.removeprefix("u="))
+                yield int(game_url.query.removeprefix("u="))
 
-                gcg_file_url: str = self.get_gcg_file_page_url_with_game_id(game_id)
-                yield self.get_html(gcg_file_url)
+    # def get_gcg_records_as_generator(self) -> Generator[dict[str, Any], Any, None]:
+    #     """
+    #     Returns a generator that yields game records required for persistence.
+    #     :return: A generator yielding dicts with game id, list-page marker, and gcg contents.
+    #     """
+    #     for game_id in self.get_game_ids_as_generator():
+    #         gcg_file_url: str = self.get_gcg_file_page_url_with_game_id(game_id)
+    #         yield {
+    #             "cross_tables_game_id": game_id,
+    #             "is_on_list_page": True,
+    #             "gcg_file_contents": self.get_html(gcg_file_url)
+    #         }
 
-                num_of_files_read_so_far += 1
+    def get_gcg_file_contents_by_game_id(self, game_id: int) -> Optional[str]:
+        """
+        Retrieves the contents of a GCG file from Cross-Tables.com for a given game ID.
+        :param game_id: The ID of the game for which to retrieve the GCG file contents.
+        :return: The contents of the GCG file for the given game ID.
+        """
+        gcg_file_url: str = self.get_gcg_file_page_url_with_game_id(game_id)
+        return self.get_html(gcg_file_url)
+
+    # def get_gcg_files_as_generator(self) -> Generator[Optional[str], Any, None]:
+    #     """
+    #     Returns a generator that yields the contents of GCG files from Cross-Tables.com.
+    #     :return: A generator that yields the contents of GCG files from Cross-Tables.com.
+    #     """
+    #     for gcg_record in self.get_gcg_records_as_generator():
+    #         yield gcg_record["gcg_file_contents"]
 
     def output_words_to_file(self, file_path: str, max_files_to_read: int = -1):
         """
