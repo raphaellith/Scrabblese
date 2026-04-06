@@ -5,12 +5,10 @@ Provides a class for scraping GCG files from Cross-Tables.com.
 from typing import Optional, Any, Generator
 
 import requests
-from itertools import count, islice
+from itertools import count
 
 from bs4 import BeautifulSoup, ResultSet, Tag
 from urllib.parse import urlparse
-
-from parsing.scrabble_game import ScrabbleGame
 
 
 class GcgScraper:
@@ -116,20 +114,6 @@ class GcgScraper:
         for id in range(last_listed_game_id - 1, -1, -1):
             yield id
 
-
-    # def get_gcg_records_as_generator(self) -> Generator[dict[str, Any], Any, None]:
-    #     """
-    #     Returns a generator that yields game records required for persistence.
-    #     :return: A generator yielding dicts with game id, list-page marker, and gcg contents.
-    #     """
-    #     for game_id in self.get_game_ids_as_generator():
-    #         gcg_file_url: str = self.get_gcg_file_page_url_with_game_id(game_id)
-    #         yield {
-    #             "cross_tables_game_id": game_id,
-    #             "is_on_list_page": True,
-    #             "gcg_file_contents": self.get_html(gcg_file_url)
-    #         }
-
     def get_gcg_file_contents_by_game_id(self, game_id: int) -> Optional[str]:
         """
         Retrieves the contents of a GCG file from Cross-Tables.com for a given game ID.
@@ -138,29 +122,3 @@ class GcgScraper:
         """
         gcg_file_url: str = self.get_gcg_file_page_url_with_game_id(game_id)
         return self.get_html(gcg_file_url)
-
-    # def get_gcg_files_as_generator(self) -> Generator[Optional[str], Any, None]:
-    #     """
-    #     Returns a generator that yields the contents of GCG files from Cross-Tables.com.
-    #     :return: A generator that yields the contents of GCG files from Cross-Tables.com.
-    #     """
-    #     for gcg_record in self.get_gcg_records_as_generator():
-    #         yield gcg_record["gcg_file_contents"]
-
-    def output_words_to_file(self, file_path: str, max_files_to_read: int = -1):
-        """
-        Retrieves the contents of GCG files from Cross-Tables.com and outputs the words in each game to a file.
-        :param file_path: The path to the file where the words will be written.
-        :param max_files_to_read: The maximum number of GCG files to read. If -1, all files will be read.
-        :return:
-        """
-        gcg_file_generator = self.get_gcg_files_as_generator()
-
-        if max_files_to_read >= 0:
-            gcg_file_generator = islice(gcg_file_generator, max_files_to_read)
-
-        with open(file_path, "w") as output_file:
-            for gcg_content in gcg_file_generator:
-                scrabble_game = ScrabbleGame(gcg_content)
-                for word in scrabble_game.all_words():
-                    output_file.write(word + '\n')
