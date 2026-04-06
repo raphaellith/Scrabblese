@@ -12,7 +12,7 @@ def get_words_and_probabilities():
     total_number_of_scrabble_plays = get_total_number_of_scrabble_plays()
 
     if total_number_of_scrabble_plays == 0:
-        return tuple()
+        return [], [], []
 
     # Query all unique words, their ngram probabilities, and their Scrabble probabilities
     query = (
