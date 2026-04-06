@@ -8,7 +8,7 @@ from math import inf
 from peewee import IntegrityError
 
 from gcg_scraper import GcgScraper
-from NgramsFinder import NgramsFinder
+from ngrams_finder import NgramsFinder
 from parsing.scrabble_game import ScrabbleGame
 from database.ensure_tables_exist import initialise_database
 from models.scrabble_game_entity import ScrabbleGameEntity
