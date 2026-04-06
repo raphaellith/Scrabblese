@@ -24,20 +24,29 @@ class ScrabbleseDataCollector:
         self.ngrams_finder = NgramsFinder()
         self.gcg_scraper = GcgScraper(user_agent=user_agent) if user_agent is not None else GcgScraper()
 
-    def _cache_game_words_to_database(self, scrabble_game_entity: ScrabbleGameEntity):
+    def _create_game_entity_and_cache_its_words_to_database(self, game_id, is_on_list_page, gcg_file_contents) -> bool:
         """
-        Given an existing ScrabbleGameEntity, parses its GCG content to extract its words and create ScrabbleWordEntity
-        or ScrabbleGameWordEntity objects as needed.
-        :param scrabble_game_entity: The persisted game entity.
-        :return: None
+        Parses the GCG content to extract words and creates ScrabbleGameEntity, ScrabbleWordEntity, and
+        ScrabbleGameWordEntity objects as needed. If parsing fails, nothing is persisted.
+        :param game_id: The cross-tables game ID.
+        :param is_on_list_page: Whether the game is listed.
+        :param gcg_file_contents: The GCG file contents.
+        :return: True if persisted, False otherwise.
         """
-        game_words = ScrabbleGame(scrabble_game_entity.gcg_file_contents).all_words()
+        try:
+            game_words = ScrabbleGame(gcg_file_contents).all_words()
+        except Exception:
+            # Parsing failed, do not persist anything
+            return False
+
         word_counter = Counter(game_words)
 
-        # Replace all per-game word counts to keep cache deterministic if source content changes
-        ScrabbleGameWordEntity.delete().where(
-            ScrabbleGameWordEntity.scrabble_game_id == scrabble_game_entity
-        ).execute()
+        # Create ScrabbleGameEntity only after successful parsing
+        scrabble_game_entity = ScrabbleGameEntity.create(
+            cross_tables_game_id=game_id,
+            is_on_list_page=is_on_list_page,
+            gcg_file_contents=gcg_file_contents,
+        )
 
         for word_text, count in word_counter.items():
             scrabble_word_entity = self._get_or_create_scrabble_word_entity(word_text)
@@ -46,6 +55,8 @@ class ScrabbleseDataCollector:
                 scrabble_word_id=scrabble_word_entity,
                 count=count
             )
+
+        return True
 
     def _get_or_create_scrabble_word_entity(self, word_text: str) -> ScrabbleWordEntity:
         """
@@ -92,13 +103,8 @@ class ScrabbleseDataCollector:
                 continue
 
             gcg_contents = self.gcg_scraper.get_gcg_file_contents_by_game_id(game_id)
-            scrabble_game_entity = ScrabbleGameEntity.create(
-                cross_tables_game_id=game_id,
-                is_on_list_page=scrape_listed_games,
-                gcg_file_contents=gcg_contents,
-            )
-
-            self._cache_game_words_to_database(scrabble_game_entity)
-            inserted_games += 1
+            persisted = self._create_game_entity_and_cache_its_words_to_database(game_id, scrape_listed_games, gcg_contents)
+            if persisted:
+                inserted_games += 1
 
         return inserted_games
