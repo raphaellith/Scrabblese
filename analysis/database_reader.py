@@ -1,3 +1,5 @@
+from collections.abc import Callable
+
 from analysis.data_point import ScrabbleseDataPoint
 from database.ensure_tables_exist import initialise_database
 from models.scrabble_game_word_entity import ScrabbleGameWordEntity
@@ -65,7 +67,7 @@ def get_data_points():
 # TODO: Extract this method to a separate class or file
 def show_plot(x_axis_label_for_ngrams_probabilities: str = "",
               y_axis_label_for_scrabble_probabilities: str = "", logarithmic: bool = False,
-              annotated: bool = True):
+              annotated: bool = True, data_point_filter: Callable[ScrabbleseDataPoint, bool] = None):
     """
     Displays a plot (via Matplotlib) of the ngrams and Scrabble probabilities of each word.
 
@@ -73,9 +75,15 @@ def show_plot(x_axis_label_for_ngrams_probabilities: str = "",
     :param y_axis_label_for_scrabble_probabilities: The label for the y-axis of the plot.
     :param logarithmic: Whether to use a logarithmic scale for the axes of the plot.
     :param annotated: Whether to annotate each data point with the word it represents.
+    :param data_point_filter: A filter for which data points to include in the plot.
+    If None, all data points are included. If not None, only data points for which the filter returns True are included.
     :return: None
     """
     data_points = get_data_points()
+
+    if data_point_filter:
+        data_points = [d for d in data_points if data_point_filter(d)]
+
     plt.scatter([d.ngrams_probability for d in data_points], [d.scrabble_probability for d in data_points], marker=".")
 
     scale_option = "log" if logarithmic else "linear"
