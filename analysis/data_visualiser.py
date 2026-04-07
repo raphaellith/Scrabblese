@@ -1,20 +1,27 @@
 from database.ensure_tables_exist import initialise_database
 from models.scrabble_game_word_entity import ScrabbleGameWordEntity
 from models.scrabble_word_entity import ScrabbleWordEntity
+from models.scrabble_game_entity import ScrabbleGameEntity
 
 from peewee import fn
 from matplotlib import pyplot as plt
 
 
-def get_words_and_probabilities():
+def get_words_and_probabilities(include_listed_games: bool = True, include_unlisted_games: bool = True):
     initialise_database()
 
-    total_number_of_scrabble_plays = get_total_number_of_scrabble_plays()
+    # Handle case where both are False: return empty
+    if not include_listed_games and not include_unlisted_games:
+        return [], [], []
+
+    total_number_of_scrabble_plays = get_total_number_of_scrabble_plays(
+        include_listed_games=include_listed_games,
+        include_unlisted_games=include_unlisted_games
+    )
 
     if total_number_of_scrabble_plays == 0:
         return [], [], []
 
-    # Query all unique words, their ngram probabilities, and their Scrabble probabilities
     query = (
         ScrabbleWordEntity
         .select(
@@ -23,9 +30,17 @@ def get_words_and_probabilities():
             (fn.SUM(ScrabbleGameWordEntity.count) / float(total_number_of_scrabble_plays)).alias("scrabble_probability")
         )
         .join(ScrabbleGameWordEntity, on=(ScrabbleGameWordEntity.scrabble_word_id == ScrabbleWordEntity.id))
-        .group_by(ScrabbleWordEntity.text, ScrabbleWordEntity.ngrams_probability)
-        .order_by(ScrabbleWordEntity.text)
+        .join(ScrabbleGameEntity, on=(ScrabbleGameWordEntity.scrabble_game_id == ScrabbleGameEntity.id))
     )
+
+    # If both are true, no filter is needed
+    if include_listed_games and not include_unlisted_games:
+        query = query.where(ScrabbleGameEntity.is_on_list_page == True)
+    elif not include_listed_games and include_unlisted_games:
+        query = query.where(ScrabbleGameEntity.is_on_list_page == False)
+
+    query = query.group_by(ScrabbleWordEntity.text, ScrabbleWordEntity.ngrams_probability)
+    query = query.order_by(ScrabbleWordEntity.text)
 
     words = []
     ngrams_probabilities = []
@@ -44,12 +59,24 @@ def get_words_and_probabilities():
 #     return ScrabbleWordEntity.select(ScrabbleWordEntity.text).order_by(ScrabbleWordEntity.text)
 
 
-def get_total_number_of_scrabble_plays():
+def get_total_number_of_scrabble_plays(include_listed_games: bool = True, include_unlisted_games: bool = True):
     initialise_database()
-    return (ScrabbleGameWordEntity
-            .select(fn.SUM(ScrabbleGameWordEntity.count))
-            .scalar() or 0
-            )
+
+    if not include_listed_games and not include_unlisted_games:
+        return 0
+
+    query = (ScrabbleGameWordEntity
+             .select(fn.SUM(ScrabbleGameWordEntity.count))
+             .join(ScrabbleGameEntity, on=(ScrabbleGameWordEntity.scrabble_game_id == ScrabbleGameEntity.id))
+    )
+
+    # If both are true, no filter is needed
+    if include_listed_games and not include_unlisted_games:
+        query = query.where(ScrabbleGameEntity.is_on_list_page == True)
+    elif not include_listed_games and include_unlisted_games:
+        query = query.where(ScrabbleGameEntity.is_on_list_page == False)
+
+    return query.scalar() or 0
 
 
 def show_plot(words: list[str], ngrams_probabilities: list[float],
