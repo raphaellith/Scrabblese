@@ -3,7 +3,7 @@ A template program for retrieving and plotting data points from the database.
 """
 
 from matplotlib import pyplot as plt
-from analysis.database_reader import get_data_points
+from datahandling.database_reader import get_data_points
 
 
 data_points = get_data_points(select_listed_games=True, select_unlisted_games=True)

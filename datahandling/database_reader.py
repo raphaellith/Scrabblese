@@ -1,6 +1,6 @@
 from typing import List
 
-from analysis.data_point import ScrabbleseDataPoint
+from datahandling.data_point import ScrabbleseDataPoint
 from database.ensure_tables_exist import initialise_database
 from models.scrabble_game_word_entity import ScrabbleGameWordEntity
 from models.scrabble_word_entity import ScrabbleWordEntity
