@@ -10,10 +10,12 @@ from models.scrabble_game_entity import ScrabbleGameEntity
 from peewee import fn, Select
 from matplotlib import pyplot as plt
 
-# TODO: Listed/Unlisted distinction/filtering
 
+def get_query_for_retrieving_words_and_probabilities(select_listed_games: bool = True,
+                                                     select_unlisted_games: bool = True) -> Select:
+    if not select_listed_games and not select_unlisted_games:
+        raise ValueError("At least one of select_listed_games or select_unlisted_games must be True in order for the query to return a non-empty result.")
 
-def get_query_for_retrieving_words_and_probabilities() -> Select:
     query = (
         ScrabbleWordEntity
         .select(
@@ -25,16 +27,24 @@ def get_query_for_retrieving_words_and_probabilities() -> Select:
         .join(ScrabbleGameEntity, on=(ScrabbleGameWordEntity.scrabble_game_id == ScrabbleGameEntity.id))
     )
 
+    if select_listed_games and not select_unlisted_games:
+        query = query.where(ScrabbleGameEntity.is_on_list_page == True)
+    elif select_unlisted_games and select_listed_games:
+        query = query.where(ScrabbleGameEntity.is_on_list_page == False)
+
     query = query.group_by(ScrabbleWordEntity.text, ScrabbleWordEntity.ngrams_probability)
     query = query.order_by(ScrabbleWordEntity.text)
 
     return query
 
 
-def get_data_points() -> List[ScrabbleseDataPoint]:
+def get_data_points(select_listed_games: bool = True, select_unlisted_games: bool = True) -> List[ScrabbleseDataPoint]:
     initialise_database()
 
-    query = get_query_for_retrieving_words_and_probabilities()
+    query = get_query_for_retrieving_words_and_probabilities(
+        select_listed_games=select_listed_games,
+        select_unlisted_games=select_unlisted_games
+    )
 
     data_points = [
         ScrabbleseDataPoint(
@@ -49,12 +59,15 @@ def get_data_points() -> List[ScrabbleseDataPoint]:
 
 
 # TODO: Extract this method to a separate class or file
-def show_plot(x_axis_label_for_ngrams_probabilities: str = "",
-              y_axis_label_for_scrabble_play_counts: str = "", x_logarithmic: bool = False, y_logarithmic: bool = False,
-              annotated: bool = True, data_point_filter: Callable[ScrabbleseDataPoint, bool] = None):
+def show_plot(select_listed_games: bool = True, select_unlisted_games: bool = True,
+              x_axis_label_for_ngrams_probabilities: str = "", y_axis_label_for_scrabble_play_counts: str = "",
+              x_logarithmic: bool = False, y_logarithmic: bool = False, annotated: bool = True,
+              data_point_filter: Callable[ScrabbleseDataPoint, bool] = None):
     """
     Displays a plot (via Matplotlib) of the ngrams and Scrabble probabilities of each word.
 
+    :param select_listed_games: Whether to select listed games or not.
+    :param select_unlisted_games: Whether to select unlisted games or not.
     :param x_axis_label_for_ngrams_probabilities: The label for the x-axis of the plot.
     :param y_axis_label_for_scrabble_play_counts: The label for the y-axis of the plot.
     :param x_logarithmic: Whether to use a logarithmic scale for the x-axis of the plot.
@@ -64,7 +77,7 @@ def show_plot(x_axis_label_for_ngrams_probabilities: str = "",
     If None, all data points are included. If not None, only data points for which the filter returns True are included.
     :return: None
     """
-    data_points = get_data_points()
+    data_points = get_data_points(select_listed_games=select_listed_games, select_unlisted_games=select_unlisted_games)
 
     if data_point_filter:
         data_points = [d for d in data_points if data_point_filter(d)]
