@@ -1,4 +1,5 @@
 from collections.abc import Callable
+from typing import List
 
 from analysis.data_point import ScrabbleseDataPoint
 from database.ensure_tables_exist import initialise_database
@@ -6,12 +7,12 @@ from models.scrabble_game_word_entity import ScrabbleGameWordEntity
 from models.scrabble_word_entity import ScrabbleWordEntity
 from models.scrabble_game_entity import ScrabbleGameEntity
 
-from peewee import fn
+from peewee import fn, Select
 from matplotlib import pyplot as plt
 
 # TODO: Listed/Unlisted distinction/filtering
 
-def get_total_number_of_scrabble_plays():
+def get_total_number_of_scrabble_plays() -> int:
     initialise_database()
 
     query = (
@@ -24,7 +25,7 @@ def get_total_number_of_scrabble_plays():
     return query.scalar() or 0
 
 
-def get_query_for_retrieving_words_and_probabilities():
+def get_query_for_retrieving_words_and_probabilities() -> Select:
     total_number_of_scrabble_plays = get_total_number_of_scrabble_plays()
 
     if total_number_of_scrabble_plays == 0:
@@ -48,7 +49,7 @@ def get_query_for_retrieving_words_and_probabilities():
     return query
 
 
-def get_data_points():
+def get_data_points() -> List[ScrabbleseDataPoint]:
     initialise_database()
 
     query = get_query_for_retrieving_words_and_probabilities()
