@@ -16,7 +16,7 @@ from models.scrabble_game_word_entity import ScrabbleGameWordEntity
 from models.scrabble_word_entity import ScrabbleWordEntity
 
 
-class ScrabbleseDataCollector:
+class ScrabblesDataWriter:
     def __init__(self, csv_delimiter: str = " ", csv_quotechar: str = "|", user_agent: str = None):
         self.csv_delimiter = csv_delimiter
         self.csv_quotechar = csv_quotechar
