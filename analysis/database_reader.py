@@ -1,3 +1,4 @@
+from analysis.data_point import ScrabbleseDataPoint
 from database.ensure_tables_exist import initialise_database
 from models.scrabble_game_word_entity import ScrabbleGameWordEntity
 from models.scrabble_word_entity import ScrabbleWordEntity
@@ -13,6 +14,21 @@ class ScrabbleseDatabaseReader:
 
     def add_where_expression(self, where_expression: Expression):
         self._where_expressions.append(where_expression)
+
+    def get_total_number_of_scrabble_plays(self):
+        initialise_database()
+
+        query = (
+            ScrabbleGameWordEntity
+            .select(fn.SUM(ScrabbleGameWordEntity.count))
+            .join(ScrabbleGameEntity, on=(ScrabbleGameWordEntity.scrabble_game_id == ScrabbleGameEntity.id))
+            .join(ScrabbleWordEntity, on=(ScrabbleGameWordEntity.scrabble_word_id == ScrabbleWordEntity.id))
+        )
+
+        for where_expression in self._where_expressions:
+            query = query.where(where_expression)
+
+        return query.scalar() or 0
 
     def get_query_for_retrieving_words_and_probabilities(self):
         total_number_of_scrabble_plays = self.get_total_number_of_scrabble_plays()
@@ -40,37 +56,23 @@ class ScrabbleseDatabaseReader:
 
         return query
 
-    def get_words_and_probabilities(self):
+    def get_data_points(self):
         initialise_database()
 
         query = self.get_query_for_retrieving_words_and_probabilities()
 
-        words = []
-        ngrams_probabilities = []
-        scrabble_probabilities = []
+        data_points = [
+            ScrabbleseDataPoint(
+                word=row.text,
+                ngrams_probability=row.ngrams_probability,
+                scrabble_probability=row.scrabble_probability
+            )
+            for row in query
+        ]
 
-        for row in query:
-            words.append(row.text)
-            ngrams_probabilities.append(row.ngrams_probability)
-            scrabble_probabilities.append(row.scrabble_probability)
+        return data_points
 
-        return words, ngrams_probabilities, scrabble_probabilities
-
-    def get_total_number_of_scrabble_plays(self):
-        initialise_database()
-
-        query = (
-            ScrabbleGameWordEntity
-            .select(fn.SUM(ScrabbleGameWordEntity.count))
-            .join(ScrabbleGameEntity, on=(ScrabbleGameWordEntity.scrabble_game_id == ScrabbleGameEntity.id))
-            .join(ScrabbleWordEntity, on=(ScrabbleGameWordEntity.scrabble_word_id == ScrabbleWordEntity.id))
-        )
-
-        for where_expression in self._where_expressions:
-            query = query.where(where_expression)
-
-        return query.scalar() or 0
-
+    # TODO: Extract this method to a separate class
     def show_plot(self, x_axis_label_for_ngrams_probabilities: str = "",
               y_axis_label_for_scrabble_probabilities: str = "", logarithmic: bool = False,
               annotated: bool = True):
@@ -83,17 +85,16 @@ class ScrabbleseDatabaseReader:
         :param annotated: Whether to annotate each data point with the word it represents.
         :return: None
         """
-        words, ngrams_probabilities, scrabble_probabilities = self.get_words_and_probabilities()
-
-        plt.scatter(ngrams_probabilities, scrabble_probabilities, marker=".")
+        data_points = self.get_data_points()
+        plt.scatter([d.ngrams_probability for d in data_points], [d.scrabble_probability for d in data_points], marker=".")
 
         scale_option = "log" if logarithmic else "linear"
         plt.xscale(scale_option)
         plt.yscale(scale_option)
 
         if annotated:
-            for i, word in enumerate(words):
-                plt.annotate(word, (ngrams_probabilities[i], scrabble_probabilities[i]))
+            for d in data_points:
+                plt.annotate(d.word, (d.ngrams_probability, d.scrabble_probability))
 
         if x_axis_label_for_ngrams_probabilities:
             plt.xlabel(x_axis_label_for_ngrams_probabilities)
