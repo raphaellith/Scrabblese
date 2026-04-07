@@ -72,7 +72,7 @@ class ScrabbleseDatabaseReader:
 
         return data_points
 
-    # TODO: Extract this method to a separate class
+    # TODO: Extract this method to a separate class to the main program
     def show_plot(self, x_axis_label_for_ngrams_probabilities: str = "",
               y_axis_label_for_scrabble_probabilities: str = "", logarithmic: bool = False,
               annotated: bool = True):
