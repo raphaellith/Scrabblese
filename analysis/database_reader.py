@@ -4,16 +4,13 @@ from models.scrabble_game_word_entity import ScrabbleGameWordEntity
 from models.scrabble_word_entity import ScrabbleWordEntity
 from models.scrabble_game_entity import ScrabbleGameEntity
 
-from peewee import fn, Expression
+from peewee import fn
 from matplotlib import pyplot as plt
 
 
 class ScrabbleseDatabaseReader:
     def __init__(self):
-        self._where_expressions: list[Expression] = []
-
-    def add_where_expression(self, where_expression: Expression):
-        self._where_expressions.append(where_expression)
+        pass
 
     def get_total_number_of_scrabble_plays(self):
         initialise_database()
@@ -24,9 +21,6 @@ class ScrabbleseDatabaseReader:
             .join(ScrabbleGameEntity, on=(ScrabbleGameWordEntity.scrabble_game_id == ScrabbleGameEntity.id))
             .join(ScrabbleWordEntity, on=(ScrabbleGameWordEntity.scrabble_word_id == ScrabbleWordEntity.id))
         )
-
-        for where_expression in self._where_expressions:
-            query = query.where(where_expression)
 
         return query.scalar() or 0
 
@@ -47,9 +41,6 @@ class ScrabbleseDatabaseReader:
             .join(ScrabbleGameWordEntity, on=(ScrabbleGameWordEntity.scrabble_word_id == ScrabbleWordEntity.id))
             .join(ScrabbleGameEntity, on=(ScrabbleGameWordEntity.scrabble_game_id == ScrabbleGameEntity.id))
         )
-
-        for where_expression in self._where_expressions:
-            query = query.where(where_expression)
 
         query = query.group_by(ScrabbleWordEntity.text, ScrabbleWordEntity.ngrams_probability)
         query = query.order_by(ScrabbleWordEntity.text)
