@@ -54,11 +54,6 @@ def get_words_and_probabilities(include_listed_games: bool = True, include_unlis
     return words, ngrams_probabilities, scrabble_probabilities
 
 
-# def get_all_words_in_database():
-#     initialise_database()
-#     return ScrabbleWordEntity.select(ScrabbleWordEntity.text).order_by(ScrabbleWordEntity.text)
-
-
 def get_total_number_of_scrabble_plays(include_listed_games: bool = True, include_unlisted_games: bool = True):
     initialise_database()
 
