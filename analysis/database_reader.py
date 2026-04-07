@@ -12,18 +12,6 @@ from matplotlib import pyplot as plt
 
 # TODO: Listed/Unlisted distinction/filtering
 
-# def get_total_number_of_scrabble_plays() -> int:
-#     initialise_database()
-#
-#     query = (
-#         ScrabbleGameWordEntity
-#         .select(fn.SUM(ScrabbleGameWordEntity.count))
-#         .join(ScrabbleGameEntity, on=(ScrabbleGameWordEntity.scrabble_game_id == ScrabbleGameEntity.id))
-#         .join(ScrabbleWordEntity, on=(ScrabbleGameWordEntity.scrabble_word_id == ScrabbleWordEntity.id))
-#     )
-#
-#     return query.scalar() or 0
-
 
 def get_query_for_retrieving_words_and_probabilities() -> Select:
     query = (
