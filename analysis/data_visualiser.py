@@ -85,8 +85,3 @@ def show_plot(words: list[str], ngrams_probabilities: list[float],
         plt.ylabel(y_axis_label_for_scrabble_probabilities)
 
     plt.show()
-
-
-if __name__ == '__main__':
-    words, ngrams_probabilities, scrabble_probabilities = get_words_and_probabilities()
-    show_plot(words, ngrams_probabilities, scrabble_probabilities, logarithmic=True)
