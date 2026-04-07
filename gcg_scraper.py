@@ -25,13 +25,13 @@ class GcgScraper:
     # URL for the game list page on Cross-Tables.com
     GAME_LIST_PAGE_URL: str = f"{HOST_URL}/annolistself.php"
 
-    def __init__(self, user_agent: str = None):
+    def __init__(self, user_agent: Optional[str] = None) -> None:
         """
         Initialises a GcgScraper by setting up a session with a User-Agent header.
 
         :param user_agent: The User-Agent header to use for the session. If not provided, a default User-Agent will be used.
         """
-        self.request_session = requests.Session()
+        self.request_session: requests.Session = requests.Session()
         self.request_session.headers.update({'User-Agent': user_agent if user_agent else "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"})
 
     def get_html(self, url: str) -> Optional[str]:
@@ -44,7 +44,7 @@ class GcgScraper:
 
         while True:
             try:
-                get_result = self.request_session.get(url)
+                get_result: requests.Response = self.request_session.get(url)
                 return get_result.text
             except requests.exceptions.RequestException:
                 continue
@@ -102,7 +102,7 @@ class GcgScraper:
         listed_game_ids_generator: Generator[int, Any, None] = self.get_listed_game_id_generator()
 
         try:
-            last_listed_game_id = next(listed_game_ids_generator)
+            last_listed_game_id: int = next(listed_game_ids_generator)
         except StopIteration:
             return
 
