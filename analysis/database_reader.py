@@ -12,32 +12,26 @@ from matplotlib import pyplot as plt
 
 # TODO: Listed/Unlisted distinction/filtering
 
-def get_total_number_of_scrabble_plays() -> int:
-    initialise_database()
-
-    query = (
-        ScrabbleGameWordEntity
-        .select(fn.SUM(ScrabbleGameWordEntity.count))
-        .join(ScrabbleGameEntity, on=(ScrabbleGameWordEntity.scrabble_game_id == ScrabbleGameEntity.id))
-        .join(ScrabbleWordEntity, on=(ScrabbleGameWordEntity.scrabble_word_id == ScrabbleWordEntity.id))
-    )
-
-    return query.scalar() or 0
+# def get_total_number_of_scrabble_plays() -> int:
+#     initialise_database()
+#
+#     query = (
+#         ScrabbleGameWordEntity
+#         .select(fn.SUM(ScrabbleGameWordEntity.count))
+#         .join(ScrabbleGameEntity, on=(ScrabbleGameWordEntity.scrabble_game_id == ScrabbleGameEntity.id))
+#         .join(ScrabbleWordEntity, on=(ScrabbleGameWordEntity.scrabble_word_id == ScrabbleWordEntity.id))
+#     )
+#
+#     return query.scalar() or 0
 
 
 def get_query_for_retrieving_words_and_probabilities() -> Select:
-    total_number_of_scrabble_plays = get_total_number_of_scrabble_plays()
-
-    if total_number_of_scrabble_plays == 0:
-        raise ZeroDivisionError("No scrabble plays found, so probabilities cannot be computed.")
-
     query = (
         ScrabbleWordEntity
         .select(
             ScrabbleWordEntity.text,
             ScrabbleWordEntity.ngrams_probability,
-            (fn.SUM(ScrabbleGameWordEntity.count) / float(total_number_of_scrabble_plays)).alias(
-                "scrabble_probability")
+            fn.SUM(ScrabbleGameWordEntity.count).alias("scrabble_play_count")
         )
         .join(ScrabbleGameWordEntity, on=(ScrabbleGameWordEntity.scrabble_word_id == ScrabbleWordEntity.id))
         .join(ScrabbleGameEntity, on=(ScrabbleGameWordEntity.scrabble_game_id == ScrabbleGameEntity.id))
@@ -58,7 +52,7 @@ def get_data_points() -> List[ScrabbleseDataPoint]:
         ScrabbleseDataPoint(
             word=row.text,
             ngrams_probability=row.ngrams_probability,
-            scrabble_probability=row.scrabble_probability
+            scrabble_play_count=row.scrabble_play_count
         )
         for row in query
     ]
@@ -68,13 +62,13 @@ def get_data_points() -> List[ScrabbleseDataPoint]:
 
 # TODO: Extract this method to a separate class or file
 def show_plot(x_axis_label_for_ngrams_probabilities: str = "",
-              y_axis_label_for_scrabble_probabilities: str = "", logarithmic: bool = False,
+              y_axis_label_for_scrabble_play_counts: str = "", logarithmic: bool = False,
               annotated: bool = True, data_point_filter: Callable[ScrabbleseDataPoint, bool] = None):
     """
     Displays a plot (via Matplotlib) of the ngrams and Scrabble probabilities of each word.
 
     :param x_axis_label_for_ngrams_probabilities: The label for the x-axis of the plot.
-    :param y_axis_label_for_scrabble_probabilities: The label for the y-axis of the plot.
+    :param y_axis_label_for_scrabble_play_counts: The label for the y-axis of the plot.
     :param logarithmic: Whether to use a logarithmic scale for the axes of the plot.
     :param annotated: Whether to annotate each data point with the word it represents.
     :param data_point_filter: A filter for which data points to include in the plot.
@@ -86,7 +80,7 @@ def show_plot(x_axis_label_for_ngrams_probabilities: str = "",
     if data_point_filter:
         data_points = [d for d in data_points if data_point_filter(d)]
 
-    plt.scatter([d.ngrams_probability for d in data_points], [d.scrabble_probability for d in data_points], marker=".")
+    plt.scatter([d.ngrams_probability for d in data_points], [d.scrabble_play_count for d in data_points], marker=".")
 
     scale_option = "log" if logarithmic else "linear"
     plt.xscale(scale_option)
@@ -94,12 +88,12 @@ def show_plot(x_axis_label_for_ngrams_probabilities: str = "",
 
     if annotated:
         for d in data_points:
-            plt.annotate(d.word, (d.ngrams_probability, d.scrabble_probability))
+            plt.annotate(d.word, (d.ngrams_probability, d.scrabble_play_count))
 
     if x_axis_label_for_ngrams_probabilities:
         plt.xlabel(x_axis_label_for_ngrams_probabilities)
 
-    if y_axis_label_for_scrabble_probabilities:
-        plt.ylabel(y_axis_label_for_scrabble_probabilities)
+    if y_axis_label_for_scrabble_play_counts:
+        plt.ylabel(y_axis_label_for_scrabble_play_counts)
 
     plt.show()
