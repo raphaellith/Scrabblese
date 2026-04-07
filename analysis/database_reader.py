@@ -9,6 +9,7 @@ from models.scrabble_game_entity import ScrabbleGameEntity
 from peewee import fn
 from matplotlib import pyplot as plt
 
+# TODO: Listed/Unlisted distinction/filtering
 
 def get_total_number_of_scrabble_plays():
     initialise_database()
