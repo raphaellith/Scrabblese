@@ -7,7 +7,7 @@ from peewee import fn, Expression
 from matplotlib import pyplot as plt
 
 
-class ScrabbleseDataReader:
+class ScrabbleseDatabaseReader:
     def __init__(self):
         self._where_expressions: list[Expression] = []
 
