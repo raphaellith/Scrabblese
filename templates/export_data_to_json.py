@@ -1,7 +1,7 @@
 from datahandling.json_data_export import export_data_points_from_listed_games_to_json, export_data_points_from_unlisted_games_to_json
 
-LISTED_GAMES_JSON_FILE_PATH = "listed_games_data.json"
-UNLISTED_GAMES_JSON_FILE_PATH = "unlisted_games_data.json"
+LISTED_GAMES_JSON_FILE_PATH = "../exports/listed_games_data.json"
+UNLISTED_GAMES_JSON_FILE_PATH = "../exports/unlisted_games_data.json"
 
 export_data_points_from_listed_games_to_json(LISTED_GAMES_JSON_FILE_PATH)
 export_data_points_from_unlisted_games_to_json(UNLISTED_GAMES_JSON_FILE_PATH)
